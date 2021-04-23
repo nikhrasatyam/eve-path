@@ -3,11 +3,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from '../routes';
 import errorHandler from '../error_handler';
+import passport from 'passport';
+
 export default ({ app }: { app: express.Application }) => {
-  /**
-   * Health Check endpoints
-   * @TODO Explain why they are here
-   */
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  require('../config/passportFacebook')(passport);
+  app.use(passport.initialize());
+
   app.get('/status', (req, res) => {
     res.status(200).end();
   });
@@ -26,7 +28,26 @@ export default ({ app }: { app: express.Application }) => {
 
   // Middleware that transforms the raw string of req.body into json
   app.use(bodyParser.json());
-  // Load API routes
-  app.use('/api', routes());
+  // app.get('/auth/facebook', passport.authenticate('facebook'));
+  //
+  // app.get(
+  //   '/auth/facebook/callback',
+  //   passport.authenticate('facebook', {
+  //     successRedirect: '/',
+  //     failureRedirect: '/fail',
+  //   }),
+  // );
+  //
+  // app.get('/fail', (req, res) => {
+  //   res.send('Failed attempt');
+  // });
+  //
+  // app.get('/', (req, res) => {
+  //   res.send('Success');
+  // });
+  // // Load API routes
+  // app.use('/api', routes());
+  // app.use('/auth', routes());
+  routes({ app });
   errorHandler({ app });
 };
